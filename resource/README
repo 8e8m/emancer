@@ -1,4 +1,15 @@
-flan.ogg:  "U.N. Owen Was Her Nokia N70" by AREYsan | https://www.youtube.com/watch?v=HNbsJ7Z_Iyw
-cirno.png: "Robo-Cirno" by Grok
+flan.mp3:  " U.N. Owen Was Her Nokia N70 " by AREYsan | https://www.youtube.com/watch?v=HNbsJ7Z_Iyw
+sakuya.mp3 " Lunar Clock ~ Luna Dial " by ViddyWell   | https://www.youtube.com/watch?v=Lkc4-il6WnY
+yukari.mp3  " Necrofantasia " by ZeroHadectyaStudios  |	https://www.youtube.com/watch?v=fH4X_5mNZOo
+cirno.png: " Robo-Cirno " by Grok                     | https://grok.com/
+
+Please contact emil@chud.cyou for any copyright notices.
+
+If any copyright things do occur, yt-dlp the above youtube videos and:
+ffmpeg -ss 00:00:06.5 -i flan.* -vn -c:a copy flan.mp3
+ffmpeg -ss 00:00:00 -to 00:03:01 -i fH4X_5mNZOo.* yukari.mp3
+ffmpeg -ss 00:00:04.5 -to 00:03:26.2 -i Lkc4-il6WnY.* sakuya.mp3
+
+Yarr.
 
 rest was made poorly originally using Krita/GIMP and is hereby CC-0.

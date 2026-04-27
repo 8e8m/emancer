@@ -26,11 +26,10 @@ Maybe add a trail to cirno.
 #define duokey(f,o) ((bool)f((int)context->kconfig[o])|(bool)f((int)context->kconfig[o+1]))
 #define public
 #define GAME_AREA 1080
-#define BULLET_GROUPS (1<<8)
 /* table of abstracted keyboard input */
 /* We'll name this their functionality for sake of usability considering keyboard space is much larger */
 enum kconfig
-  { /* use duokey */ LEFT=0, RIGHT=2, UP=4, DOWN=6, SLOW=8, FIRE=10
+  { /* use duokey */ LEFT=0, RIGHT=2, UP=4, DOWN=6, SLOW=8, FIRE=10, BOMB=12
   };
 /* because gamepads are sparse and usually have contextual logic
  * we'll just set it as an abstraction layer that enables remapping.
@@ -60,19 +59,20 @@ struct boss {
 struct effects {
   double scroll_speed;
   double player_flip_speed;
-  double player_pain_flash;
   int checker_alpha;
+  float flash;
 };
 struct bullet {
-  unsigned ttl, hurts;
-  // [od](x,y,radian), o => origin, d => delta
-  float ox, oy, or;
-  float dx, dy, dr;
-  float interval;
-  // count of bullets.
-  size_t c;
-  int type;
-  Color color;
+  size_t group_max, group_used;
+  size_t bullet_max;
+  float * x, * y, * r;
+  /* group_max ... */
+  unsigned * ttl;
+  size_t * count; /* absolute, count[group_used-1] == bullet_top */
+  bool * hurts;
+  int * size;
+  Color * color;
+  float * dx, * dy, * dr;
 };
 struct context {
   float delta, time;
@@ -86,18 +86,20 @@ struct context {
   struct player player[1];      /* player */
   struct boss boss[1];          /* boss */
   struct effects effects[1];    /* effect levers */
-  struct bullet bullet[BULLET_GROUPS];    /* bullet abstraction */
+  struct bullet bullet;    /* bullet abstraction */
 };
 static inline float square(float a)
 { return a * a;
 }
-void DrawCentered(Texture * texture, Vector2 point, int invert, Color color)
-{ point.x -= texture->width  / 2;
-  point.y -= texture->height / 2;
-  DrawTexturePro(*texture,
-                 (Rectangle) {0, 0, texture->width * (invert&1 ? -1 : 1), texture->height * (invert>>1&1 ? -1 : 1)},
-                 (Rectangle) {point.x, point.y,texture->width, texture->height},
-                 (Vector2){0,0}, 0, color);
+void DrawCentered(Texture * texture, Vector2 point, int invert, float radian, Color color)
+{ DrawTexturePro(*texture,
+                 (Rectangle){ 0, 0,
+                              texture->width  * (invert >> 0 & 1 ? -1 : 1),
+                              texture->height * (invert >> 1 & 1 ? -1 : 1) },
+                 (Rectangle){ point.x, point.y, texture->width, texture->height },
+                 (Vector2){ texture->width / 2.0f, texture->height / 2.0f },
+                 radian * (180.0f / M_PI),
+                 color);
 }
 #include "player.c"
 #include "bullet.c"

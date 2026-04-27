@@ -6,6 +6,7 @@ static inline void UpdateContext(struct context * context)
   UpdateBackground(context);
   UpdatePlayer(context);
   UpdateBullet(context);
+  UpdateMusic(context);
 }
 static inline void RenderContext(struct context * context)
 { BeginTextureMode(context->render);
@@ -20,7 +21,7 @@ static inline void RenderContext(struct context * context)
   DrawTexturePro(context->render.texture, 
                  (Rectangle) { 0, 0, GAME_AREA, -GAME_AREA},
                  (Rectangle) { context->area->x / 2 - GAME_AREA/2, 0, GAME_AREA, context->area->y}, 
-                 (Vector2){0,0}, 0, WHITE);
+                 (Vector2){0,0}, 0, context->effects->flash > 0 ? BLUE : WHITE);
 }
 static inline void InitContext(struct context * context)
 { Texture texture[] =
@@ -55,4 +56,5 @@ static inline void DeinitContext(struct context * context)
   { UnloadSound(context->music[i]);
   }
   UnloadRenderTexture(context->render);
+  DeinitBullet(context);
 }

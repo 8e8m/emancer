@@ -1,4 +1,4 @@
-#define SPEED 330
+#define MAGIC_SPEED 330
 static inline void InitContext(struct context * context);
 static inline void DeinitContext(struct context * context);
 static inline void Die(struct context * context)
@@ -66,11 +66,17 @@ static inline void UpdatePlayerInput(struct context * context)
   }
   if (duokey(IsKeyPressed, SLOW)
   ||  IsGamepadButtonPressed(context->gamepad, L_TRIGGER))
-  { context->player->speed = SPEED / context->player->slow_ratio;
+  { context->player->speed = MAGIC_SPEED / context->player->slow_ratio;
   }
   if (duokey(IsKeyReleased, SLOW)
   ||  IsGamepadButtonReleased(context->gamepad, L_TRIGGER))
-  { context->player->speed = SPEED;
+  { context->player->speed = MAGIC_SPEED;
+  }
+  if (duokey(IsKeyPressed, BOMB)
+  ||  IsGamepadButtonPressed(context->gamepad, R_UP))
+  { context->bullet.group_used = 0;
+    #define MAGIC_FLASH 1.2
+    context->effects->flash = MAGIC_FLASH;
   }
   if (duokey(IsKeyPressed, FIRE)
   ||  IsGamepadButtonPressed(context->gamepad, R_TRIGGER))
@@ -96,35 +102,46 @@ static inline void UpdatePlayerInput(struct context * context)
   { context->player->position.y = 0 + context->texture[CIRNO].height / 2;
   }
 }
-static inline bool BulletIntersect(struct bullet * b, Vector2 position, float radius);
 static inline void UpdatePlayer(struct context * context)
-{ UpdatePlayerInput(context);
+{ if (context->effects->flash > 0)
+  { context->effects->flash -= context->delta;
+  }
+  UpdatePlayerInput(context);
   if (context->player->invuln > 0)
   { context->player->invuln -= context->delta;
   }
-  #define MAGIC_PLAYER_RADIUS 6
+  #define MAGIC_PLAYER_RADIUS 3
   #define MAGIC_INVULN_TIME 70
-  for (int i = 0; i < BULLET_GROUPS; ++i)
-  { struct bullet * b = &context->bullet[i];
-    if (b->ttl
-    && b->hurts
-    && context->player->invuln <= 0
-    && BulletIntersect(b, context->player->position, MAGIC_PLAYER_RADIUS))
-    { context->player->invuln = MAGIC_INVULN_TIME;
-      if (!context->player->health)
-      { Die(context);
+  int i, j;
+  size_t size_map[] = { 32, 24, 20, 16, 12, 8 };
+  struct bullet * b = &context->bullet;
+  for (i = 0; i < b->group_used; ++i)
+  { if (b->ttl[i]
+    && b->hurts[i]
+    && context->player->invuln <= 0)
+    for (j = 0; j < b->count[i]; ++j)
+    { if (CheckCollisionCircles((Vector2) { b->x[j], b->y[j] }, size_map[b->size[i]-B32]/2, context->player->position, MAGIC_PLAYER_RADIUS))
+      { context->player->invuln = MAGIC_INVULN_TIME;
+        if (!context->player->health)
+        { Die(context);
+        }
+        --context->player->health;
+        goto freedom;
       }
-      --context->player->health;
     }
   }
+ freedom:
 }
 static inline void RenderPlayer(struct context * context)
-{ DrawCentered(context->texture + CIRNO, context->player->position, fmod(context->time, context->effects->player_flip_speed) > context->effects->player_flip_speed / 2, WHITE);
+{ Color damage = ColorAlpha(WHITE, context->player->invuln ? 1 / (context->player->invuln % 10) : 1);
+  DrawCentered(context->texture + CIRNO, context->player->position, fmod(context->time, context->effects->player_flip_speed) > context->effects->player_flip_speed / 2,
+               0, damage);
   if (duokey(IsKeyDown, SLOW))
-  { DrawCentered(context->texture + B12, context->player->position, 0, RED);
+  { DrawCentered(context->texture + B20, context->player->position, 0, fmodf(context->time, 2), damage);
   }
   Color color = GREEN;
-  DrawRectangleLinesEx((Rectangle) { 0, 0, GAME_AREA, GAME_AREA }, 6 - context->player->health, (Color) {255 - context->player->health * 85, context->player->health * 85, 0, 255 });
+  DrawRectangleLinesEx((Rectangle) { 0, 0, GAME_AREA, GAME_AREA }, 6 - context->player->health, (Color) {255 - context->player->health * 85, context->player->health * 85, 0,
+                                                                                                         damage.a < 100 ? 100 : 175});
 }
 static inline void InitPlayer(struct context * context)
 { int kconfig[] =
@@ -134,6 +151,7 @@ static inline void InitPlayer(struct context * context)
     KEY_S, KEY_DOWN,
     KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT,
     KEY_Z, KEY_SPACE,
+    KEY_B, KEY_F,
   };
   int gconfig[] =
   { GAMEPAD_BUTTON_MIDDLE_RIGHT,
@@ -152,7 +170,7 @@ static inline void InitPlayer(struct context * context)
   memcpy(context->kconfig, kconfig, sizeof(kconfig) / sizeof(*kconfig) * sizeof(int));
   memcpy(context->gconfig, gconfig, sizeof(gconfig) / sizeof(*gconfig) * sizeof(int));
   context->player->position = (Vector2) { GAME_AREA/2, GAME_AREA - GAME_AREA/4 };
-  context->player->speed = SPEED;
+  context->player->speed = MAGIC_SPEED;
   context->player->health = 3;
   context->player->spell = 3;
   context->player->slow_ratio = 3;
