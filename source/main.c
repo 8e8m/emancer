@@ -67,6 +67,7 @@ struct bullet {
   size_t bullet_max;
   float * x, * y, * r;
   /* group_max ... */
+  unsigned * tm; /* inverts ttl when time */
   unsigned * ttl;
   size_t * count; /* absolute, count[group_used-1] == bullet_top */
   bool * hurts;
@@ -127,7 +128,7 @@ public static inline int Main( int ac , char * av [ ] )
   SetConfigFlags(FLAG_MSAA_4X_HINT);
   InitWindow(0, 0, av[0]);
   InitAudioDevice();
-  SetMasterVolume(0.5f);
+  SetMasterVolume(0.1f);
   InitContext(context);
   while (!WindowShouldClose())
   { SetTargetFPS(IsWindowFocused() ? 60 : 10);

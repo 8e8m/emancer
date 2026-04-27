@@ -1,33 +1,18 @@
-static inline void Linear(struct context * context, Vector2 vector, Vector2 interval, float radian, size_t count)
-{ struct bullet * b = &context->bullet;
-  for (size_t i; i < count; ++i)
-  { b->x[i] += interval.x * i;
-    b->y[i] += interval.y * i;
-  }
-  b->count[b->group_used] = count;
-  b->group_used++;
-}
-static inline LastVector(struct context * context, size_t ttl, float x, float y, float r, size_t count)
-{ struct bullet * b = &context->bullet;
-   b->dx[b->group_used] = vector.x;
-  b->dy[b->group_used] = vector.y;
-  b->dr[b->group_used] = radian;
-  b->ttl[b->group_used] = ttl;
-}
 static inline void UpdateBullet(struct context * context)
 { size_t i, j;
   struct bullet * b = &context->bullet;
+  size_t size_map[] = { 32, 24, 20, 16, 12, 8 };
   for (i = 0; i < b->group_used; ++i)
   { if (b->ttl[i])
     { b->ttl[i] -= context->delta;
-      for (j = 0; j < b->count[i]; ++j)
+      for (j = i != 0 ? b->count[i-1] : 0; j < b->count[i]; ++j)
       { b->x[j] += b->dx[i] * cosf(b->r[j]) - b->dy[i] * sinf(b->r[j]);
         b->y[j] += b->dx[i] * sinf(b->r[j]) + b->dy[i] * cosf(b->r[j]);
         b->r[j] += b->dr[i];
-        b->x[j] = fmodf(b->x[j], GAME_AREA);
-        if (b->x[j] < 0) b->x[j] = GAME_AREA;
-        b->y[j] = fmodf(b->y[j], GAME_AREA);
-        if (b->y[j] < 0) b->y[j] = GAME_AREA;
+        if (b->x[j] > GAME_AREA + size_map[b->size[i]]) b->x[j] = 0;
+        if (b->x[j] < size_map[b->size[i]]) b->x[j] = GAME_AREA;
+        if (b->y[j] > GAME_AREA + size_map[b->size[i]]) b->y[j] = 0;
+        if (b->y[j] < size_map[b->size[i]]) b->y[j] = GAME_AREA;
       }
     }
   }
@@ -52,6 +37,7 @@ static inline void InitBullet(struct context * context)
   b->y     = calloc(sizeof(b->y), b->bullet_max);
   b->r     = calloc(sizeof(b->r), b->bullet_max);
   b->ttl   = calloc(sizeof(b->ttl), b->group_max);
+  b->tm    = calloc(sizeof(b->tm), b->group_max);
   b->count = calloc(sizeof(b->count), b->group_max);
   b->size  = calloc(sizeof(b->size), b->group_max);
   b->color = calloc(sizeof(b->color), b->group_max);
@@ -65,7 +51,13 @@ static inline void InitBullet(struct context * context)
     b->hurts[i] = 1;
   }
 
-  Linear(context, 3000, (Vector2){20,20}, (Vector2){1, 0}, (Vector2){0, 20}, 0.f, 20);
+  b->group_used++;
+  b->count[0] = 100;
+  for (i = 0; i < b->count[0]; ++i)
+  { b->x[i] = 20 + i * 20;
+    b->y[i] = 20 + i * 20;
+  }
+  b->ttl[0] = 1000;
 }
 static inline void DeinitBullet(struct context * context)
 { struct bullet * b = &context->bullet;
@@ -73,6 +65,7 @@ static inline void DeinitBullet(struct context * context)
   free(b->y);
   free(b->r);
   free(b->ttl);
+  free(b->tm);
   free(b->count);
   free(b->size);
   free(b->color);
