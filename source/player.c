@@ -74,6 +74,7 @@ static inline void UpdatePlayerInput(struct context * context)
   { context->player->invuln = 200;
     context->effects->flash = MAGIC_FLASH;
     context->player->bomb--;
+    PlaySound(context->sound[WHISTLE_SOUND]);
   }
   if (IsKeyPressed(KEY_R))
   { printf("time %f\n", context->time);
@@ -108,6 +109,7 @@ static inline void UpdatePlayer(struct context * context)
         if (!context->player->health)
         { Die(context);
         }
+        PlaySound(context->sound[HIT_SOUND]);
         --context->player->health;
         goto freedom;
       }

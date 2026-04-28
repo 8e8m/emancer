@@ -61,14 +61,16 @@ static inline void UpdateBoss(struct context * context)
     Group(context, 200, (Vector3){0, 250, 1}, (Vector3){30, 15, 0}, (Vector3){-1, -0.1, 0}, 12000);
   }
   /* song 2 sakuya */
-  if (context->time >= 12000 && context->phase == ++require)
+  if (context->time >= 12001 && context->phase == ++require)
   { ++context->phase;
+    printf("group %ld\n", b->group_used);
     DefaultVisual(context, B32, RED);
-    Group(context, 30, (Vector3){GAME_AREA/3, GAME_AREA/3, 1}, (Vector3){15, -1, 0}, (Vector3){-0.01, -0.01, 0}, 12000);
-    Group(context, 30, (Vector3){GAME_AREA - GAME_AREA/3, GAME_AREA/3, 1}, (Vector3){-15, -1, 0}, (Vector3){0.01, 0.01, 0}, 12000);
+    Group(context, 30, (Vector3){GAME_AREA/3, GAME_AREA/3, 1}, (Vector3){15, -1, 0}, (Vector3){-0.01, -0.01, 0}, 13000);
+    Group(context, 30, (Vector3){GAME_AREA - GAME_AREA/3, GAME_AREA/3, 1}, (Vector3){-15, -1, 0}, (Vector3){0.01, 0.01, 0}, 13000);
   }
   if (context->time >= 12300 && context->phase == ++require)
   { ++context->phase;
+
   }
   /* END GAMEPLAY. */
 }
