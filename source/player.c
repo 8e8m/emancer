@@ -76,7 +76,7 @@ static inline void UpdatePlayerInput(struct context * context)
     context->player->bomb--;
   }
   if (IsKeyPressed(KEY_R))
-  { printf("time:%f\n", context->time);
+  { printf("time %f\n", context->time);
   }
   context->player->position.x += context->delta * context->player->speed * context->player->move.x;
   context->player->position.y += context->delta * context->player->speed * context->player->move.y;

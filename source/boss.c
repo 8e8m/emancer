@@ -21,7 +21,6 @@ static inline void UpdateBoss(struct context * context)
      time 7286.807617
      time 9773.407227
      time 9915.417969
-
    */
   if (context->time > 50 && context->phase == require)
   { ++context->phase;
@@ -48,17 +47,28 @@ static inline void UpdateBoss(struct context * context)
   if (context->time >= 7200 && context->phase == ++require)
   { ++context->phase;
     DefaultVisual(context, B24, BLUE);
+    Group(context, 500, (Vector3){0, 0,1}, (Vector3){5, 20, 0}, (Vector3){0.1, 1, 0}, 12000);
   }
   if (context->time >= 9900 && context->phase == ++require)
   { ++context->phase;
+    Group(context, 200, (Vector3){0, 0, 1}, (Vector3){30, 15, 0}, (Vector3){-1, -0.1, 0}, 12000);
+    Group(context, 200, (Vector3){0, 50, 1}, (Vector3){30, 15, 0}, (Vector3){-1, -0.1, 0}, 12000);
   }
   if (context->time >= 11000 && context->phase == ++require)
   { ++context->phase;
+    Group(context, 200, (Vector3){0, 100, 1}, (Vector3){30, 15, 0}, (Vector3){-1, -0.1, 0}, 12000);
+    Group(context, 200, (Vector3){0, 200, 1}, (Vector3){30, 15, 0}, (Vector3){-1, -0.1, 0}, 12000);
+    Group(context, 200, (Vector3){0, 250, 1}, (Vector3){30, 15, 0}, (Vector3){-1, -0.1, 0}, 12000);
   }
   /* song 2 sakuya */
   if (context->time >= 12000 && context->phase == ++require)
   { ++context->phase;
     DefaultVisual(context, B32, RED);
+    Group(context, 30, (Vector3){GAME_AREA/3, GAME_AREA/3, 1}, (Vector3){15, -1, 0}, (Vector3){-0.01, -0.01, 0}, 12000);
+    Group(context, 30, (Vector3){GAME_AREA - GAME_AREA/3, GAME_AREA/3, 1}, (Vector3){-15, -1, 0}, (Vector3){0.01, 0.01, 0}, 12000);
+  }
+  if (context->time >= 12300 && context->phase == ++require)
+  { ++context->phase;
   }
   /* END GAMEPLAY. */
 }
