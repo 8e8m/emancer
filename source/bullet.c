@@ -1,6 +1,7 @@
 static inline void Group(struct context * context, size_t count, Vector3 start, Vector3 offset, Vector3 delta, unsigned ttl)
 { struct bullet * b = &context->bullet;
   size_t i, first = b->group_used ? b->count[b->group_used-1] : 0;
+  if (b->group_used >= b->group_max) { return; }
   b->count[b->group_used] = count + first;
   for (i = first; i < b->count[b->group_used]; ++i)
   { b->x[i] = start.x + (i - first) * offset.x;
@@ -20,14 +21,26 @@ static inline void UpdateBullet(struct context * context)
   for (i = 0; i < b->group_used; ++i)
   { if (b->ttl[i])
     { b->ttl[i] -= context->delta;
+      if (i == b->group_used-1
+      &&  b->ttl[i] <= 0)
+      { --b->group_used;
+      }
       for (j = i != 0 ? b->count[i-1] : 0; j < b->count[i]; ++j)
       { b->x[j] += b->dx[i] * cosf(b->r[j]) - b->dy[i] * sinf(b->r[j]);
         b->y[j] += b->dx[i] * sinf(b->r[j]) + b->dy[i] * cosf(b->r[j]);
         b->r[j] += b->dr[i];
-        if (b->x[j] > GAME_AREA + size_map[b->size[i]]) b->x[j] = fmodf(b->x[j], GAME_AREA);
-        if (b->x[j] <             size_map[b->size[i]]) b->x[j] = fmodf(b->x[j], GAME_AREA);
-        if (b->y[j] > GAME_AREA + size_map[b->size[i]]) b->y[j] = fmodf(b->y[j], GAME_AREA);
-        if (b->y[j] <             size_map[b->size[i]]) b->y[j] = fmodf(b->y[j], GAME_AREA);
+        if (b->x[j] > GAME_AREA + size_map[b->size[i]])
+        { b->x[j] = fmodf(b->x[j], GAME_AREA);
+        }
+        if (b->x[j] <             size_map[b->size[i]])
+        { b->x[j] = fmodf(b->x[j], GAME_AREA);
+        }
+        if (b->y[j] > GAME_AREA + size_map[b->size[i]])
+        { b->y[j] = fmodf(b->y[j], GAME_AREA);
+        }
+        if (b->y[j] <             size_map[b->size[i]])
+        { b->y[j] = fmodf(b->y[j], GAME_AREA);
+        }
       }
     }
   }
@@ -42,6 +55,15 @@ static inline void RenderBullet(struct context * context)
       }
     }
   }
+}
+static inline void RestartBullet(struct context * context)
+{ struct bullet * b = &context->bullet;
+  for (size_t i = 0; i < b->group_max; ++i)
+  { b->color[i] = RED;
+    b->size[i] = B24;
+    b->hurts[i] = 1;
+  }
+  b->group_used = 0;
 }
 static inline void InitBullet(struct context * context)
 { size_t i;
@@ -60,15 +82,6 @@ static inline void InitBullet(struct context * context)
   b->dx = calloc(sizeof(b->dx), b->group_max);
   b->dy = calloc(sizeof(b->dy), b->group_max);
   b->dr = calloc(sizeof(b->dr), b->group_max);
-  for (i = 0; i < b->group_max; ++i)
-  { b->color[i] = RED;
-    b->size[i] = B24;
-    b->hurts[i] = 1;
-  }
-  Group(context, 55, (Vector3){20, 20, 0}, (Vector3){20, 20, 0}, (Vector3){0,2,0}, 10000);
-  Group(context, 35, (Vector3){20, 20, 0}, (Vector3){25, 30, 0}, (Vector3){1,0,0}, 10000);
-  Group(context, 35, (Vector3){20, 20, 0}, (Vector3){25, 30, 0}, (Vector3){1,0,0.0001}, 10000);
-  Group(context, 205, (Vector3){20, 0, 0}, (Vector3){10, 100, 0}, (Vector3){1,0,0.001}, 10000);
 }
 static inline void DeinitBullet(struct context * context)
 { struct bullet * b = &context->bullet;

@@ -1,9 +1,7 @@
-#define MAGIC_SPEED 330
-static inline void InitContext(struct context * context);
-static inline void DeinitContext(struct context * context);
+#define MAGIC_SPEED 200
+static inline void RestartContext(struct context * context);
 static inline void Die(struct context * context)
-{ DeinitContext(context);
-  InitContext(context);
+{ RestartContext(context);
 }
 static inline void UpdatePlayerInput(struct context * context)
 { if (IsGamepadAvailable(context->gamepad))
@@ -129,6 +127,15 @@ static inline void RenderPlayer(struct context * context)
                                                                                                          damage.a < 100 ? 100 : 175});
   DrawRectangleLinesEx((Rectangle) { 0, 0, GAME_AREA, GAME_AREA }, context->player->bomb + 1, (Color) {20, 0, 84 * context->player->bomb, context->effects->flash > 0 ? 100 : 255});
 }
+static inline void RestartPlayer(struct context * context)
+{ context->player->position = (Vector2) { GAME_AREA/2, GAME_AREA - GAME_AREA/4 };
+  context->player->speed = MAGIC_SPEED;
+  context->player->health = 3;
+  context->player->bomb = 3;
+  context->player->slow_ratio = 1.75;
+  context->effects->player_flip_speed = 100;
+  context->effects->flash = 0;
+}
 static inline void InitPlayer(struct context * context)
 { int kconfig[] =
   { KEY_A, KEY_LEFT,
@@ -152,10 +159,4 @@ static inline void InitPlayer(struct context * context)
   };
   memcpy(context->kconfig, kconfig, sizeof(kconfig) / sizeof(*kconfig) * sizeof(int));
   memcpy(context->gconfig, gconfig, sizeof(gconfig) / sizeof(*gconfig) * sizeof(int));
-  context->player->position = (Vector2) { GAME_AREA/2, GAME_AREA - GAME_AREA/4 };
-  context->player->speed = MAGIC_SPEED;
-  context->player->health = 3;
-  context->player->bomb = 3;
-  context->player->slow_ratio = 3;
-  context->effects->player_flip_speed = 100;
 }

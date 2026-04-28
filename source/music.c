@@ -7,6 +7,10 @@ static inline void UpdateMusic(struct context * context)
     PlaySound(context->music[context->music_select]);
   }
 }
+static inline void RestartMusic(struct context * context)
+{ context->music_select = 0;
+  PlaySound(context->music[context->music_select]);
+}
 static inline void InitMusic(struct context * context)
 { Sound music[] =
   { LoadSound("resource/flan.mp3"),
@@ -14,6 +18,4 @@ static inline void InitMusic(struct context * context)
     LoadSound("resource/yukari.mp3"),
   };
   memcpy(context->music, music, sizeof(music) / sizeof(*music) * sizeof(Sound));
-  context->music_select = 0;
-  PlaySound(context->music[context->music_select]);
 }

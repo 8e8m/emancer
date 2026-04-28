@@ -29,6 +29,6 @@ static inline void RenderBorder(struct context * context)
                  (Rectangle) { context->area->x / 2 + GAME_AREA / 2, 0, context->area->x / 2 - GAME_AREA / 2, context->area->y}, 
                  (Vector2){0,0}, 0, color);
 }
-static inline void InitBackground(struct context * context)
+static inline void RestartBackground(struct context * context)
 { context->effects->scroll_speed = 3;
 }

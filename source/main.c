@@ -1,17 +1,3 @@
-/* Ideas
-Add mountains that shift in an inverted triangle along with:
-tilt scolling background background with perspective, zoom or upscale as needed.
-healthbar should be a bar, where the most important is longest and by the edge of
-the screen, and each subsequent bar is shorter. Color gradient and pad with contrast.
-Spellbar should be a split in the above healthbar, use a very different color grade.
-Bosses' health bar should not be a bar, but a segmented spinning circle in the topleft:
-i.e. 4 segments, ensuring visibility, large, in corner, with the same gradient idea,
-should show damage per phase relatively well. The spinning can vary with damage.
-Also consider the idea of making said healthbar spin at the rate of damage, though this
-may not be ideal. Perhaps an endless circle where the color grade actually determines
-the amount of damage? ((100%) cyan -> (50%) purple -> (10%) red).
-Maybe add a trail to cirno.
- */
 #include <raylib.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,11 +37,6 @@ struct player {
   int health, bomb;
   int invuln;
 };
-struct boss {
-  Vector2 position;
-  int phase, health;
-  float timeout;
-};
 struct effects {
   double scroll_speed;
   double player_flip_speed;
@@ -85,8 +66,8 @@ struct context {
   Vector2 area[1];              /* screen area */
   int music_select;
   Sound music[3];
+  int phase;
   struct player player[1];      /* player */
-  struct boss boss[1];          /* boss */
   struct effects effects[1];    /* effect levers */
   struct bullet bullet;    /* bullet abstraction */
 };
@@ -111,6 +92,7 @@ void DrawCenteredWrapped(Texture * texture, Vector2 point, int invert, float rad
   if (ox && oy) DrawCentered(texture, (Vector2){point.x+ox, point.y+oy}, invert, radian, color);
 }
 #include "player.c"
+#include "boss.c"
 #include "bullet.c"
 #include "background.c"
 #include "music.c"
@@ -130,24 +112,12 @@ int change_directory(const char * filename) {
 }
 public static inline int Main( int ac , char * av [ ] )
 { struct context context[1] = {0};
-  srand(time(NULL));
   change_directory(av[0]);
-  SetTraceLogLevel(LOG_ERROR);
-  SetConfigFlags(FLAG_MSAA_4X_HINT);
-  InitWindow(0, 0, av[0]);
-  InitAudioDevice();
-  SetMasterVolume(0.1f);
+  PreinitContext(av[0]);
   InitContext(context);
-  while (!WindowShouldClose())
-  { SetTargetFPS(IsWindowFocused() ? 60 : 10);
-    UpdateContext(context);
-    { BeginDrawing();
-      RenderContext(context);
-    } EndDrawing();
-  }
+  LoopContext(context);
   DeinitContext(context);
-  CloseAudioDevice();
-  CloseWindow();
+  PostdeinitContext();
   return 0;
 }
 int main(int ac, char ** av)

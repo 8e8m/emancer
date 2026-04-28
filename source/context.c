@@ -10,6 +10,7 @@ static inline void UpdateContext(struct context * context)
   UpdatePlayer(context);
   UpdateBullet(context);
   UpdateMusic(context);
+  UpdateBoss(context);
 }
 static inline void RenderContext(struct context * context)
 { BeginTextureMode(context->render);
@@ -26,6 +27,17 @@ static inline void RenderContext(struct context * context)
                  (Rectangle) { context->area->x / 2 - GAME_AREA/2, 0, GAME_AREA, context->area->y}, 
                  (Vector2){0,0}, 0, context->effects->flash > 0 ? BLUE : WHITE);
   DrawCentered(context->texture+TUTOR, (Vector2) {context->area->x/10, context->area->y/10}, 0, 0, ColorAlpha(WHITE, context->effects->tutor_alpha));
+}
+/* Instant restarts are done via minimal changes to state via restart functions
+ * This outperforms Deinit Init by ∞ */
+static inline void RestartContext(struct context * context)
+{ context->time = 0;
+  RestartBoss(context);
+  RestartPlayer(context);
+  RestartBullet(context);
+  RestartBackground(context);
+  RestartMusic(context);
+  context->effects->tutor_alpha = 1;
 }
 static inline void InitContext(struct context * context)
 { Texture texture[] =
@@ -49,9 +61,8 @@ static inline void InitContext(struct context * context)
   context->area->y = GetRenderHeight();
   InitPlayer(context);
   InitBullet(context);
-  InitBackground(context);
   InitMusic(context);
-  context->effects->tutor_alpha = 1;
+  RestartContext(context);
 }
 static inline void DeinitContext(struct context * context)
 { int i = 0;
@@ -63,4 +74,25 @@ static inline void DeinitContext(struct context * context)
   }
   UnloadRenderTexture(context->render);
   DeinitBullet(context);
+}
+static inline void PreinitContext(char * name)
+{ srand(time(NULL));
+  SetTraceLogLevel(LOG_ERROR);
+  SetConfigFlags(FLAG_MSAA_4X_HINT);
+  InitWindow(0, 0, name);
+  InitAudioDevice();
+  SetMasterVolume(0.1f);
+}
+static inline void LoopContext(struct context * context)
+{ while (!WindowShouldClose())
+  { SetTargetFPS(IsWindowFocused() ? 60 : 10);
+    UpdateContext(context);
+    { BeginDrawing();
+      RenderContext(context);
+    } EndDrawing();
+  }
+}
+static inline void PostdeinitContext(void)
+{ CloseAudioDevice();
+  CloseWindow();
 }
