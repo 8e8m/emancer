@@ -82,18 +82,10 @@ static inline void UpdatePlayerInput(struct context * context)
   context->player->position.y += context->delta * context->player->speed * context->player->move.y;
   if (IsKeyPressed(KEY_F1)
   ||  IsGamepadButtonPressed(context->gamepad, context->gconfig[START])) Die(context);
-  if (context->player->position.x + context->texture[CIRNO].width / 2 > GAME_AREA)
-  { context->player->position.x = GAME_AREA - context->texture[CIRNO].width / 2;
-  }
-  if (context->player->position.x - context->texture[CIRNO].width / 2 < 0)
-  { context->player->position.x = 0 + context->texture[CIRNO].width / 2;
-  }
-  if (context->player->position.y + context->texture[CIRNO].height / 2 > GAME_AREA)
-  { context->player->position.y = GAME_AREA - context->texture[CIRNO].height / 2;
-  }
-  if (context->player->position.y - context->texture[CIRNO].height / 2 < 0)
-  { context->player->position.y = 0 + context->texture[CIRNO].height / 2;
-  }
+  if (context->player->position.x > GAME_AREA) context->player->position.x -= GAME_AREA;
+  if (context->player->position.x < 0)         context->player->position.x += GAME_AREA;
+  if (context->player->position.y > GAME_AREA) context->player->position.y -= GAME_AREA;
+  if (context->player->position.y < 0)         context->player->position.y += GAME_AREA;
 }
 static inline void UpdatePlayer(struct context * context)
 { if (context->effects->flash > 0)
@@ -127,10 +119,10 @@ static inline void UpdatePlayer(struct context * context)
 }
 static inline void RenderPlayer(struct context * context)
 { Color damage = ColorAlpha(WHITE, context->player->invuln ? 1 / (context->player->invuln % 10) : 1);
-  DrawCentered(context->texture + CIRNO, context->player->position, fmod(context->time, context->effects->player_flip_speed) > context->effects->player_flip_speed / 2,
+  DrawCenteredWrapped(context->texture + CIRNO, context->player->position, fmod(context->time, context->effects->player_flip_speed) > context->effects->player_flip_speed / 2,
                0, damage);
   if (context->player->speed != MAGIC_SPEED)
-  { DrawCentered(context->texture + B20, context->player->position, 0, fmodf(context->time, 2), damage);
+  { DrawCenteredWrapped(context->texture + B20, context->player->position, 0, fmodf(context->time, 2), damage);
   }
   Color color = GREEN;
   DrawRectangleLinesEx((Rectangle) { 0, 0, GAME_AREA, GAME_AREA }, 9 - context->player->health, (Color) {255 - context->player->health * 85, context->player->health * 85, 0,

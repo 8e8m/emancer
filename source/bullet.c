@@ -38,7 +38,7 @@ static inline void RenderBullet(struct context * context)
   for (i = 0; i < b->group_used; ++i)
   { if (b->ttl[i])
     { for (j = i != 0 ? b->count[i-1] : 0; j < b->count[i]; ++j)
-      { DrawCentered(&context->texture[b->size[i]], (Vector2) { b->x[j], b->y[j] }, 0, b->r[j], b->color[i]);
+      { DrawCenteredWrapped(&context->texture[b->size[i]], (Vector2) { b->x[j], b->y[j] }, 0, b->r[j], b->color[i]);
       }
     }
   }
