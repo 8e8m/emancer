@@ -3,6 +3,10 @@ static inline void Die(struct context * context)
 { PlaySound(context->sound[DEATH_SOUND]);
   RestartContext(context);
 }
+static inline void PlayerHeal(struct context * context)
+{ if (context->player->health < MAGIC_HEALTH) ++context->player->health;
+  if (context->player->bomb < MAGIC_BOMB) ++context->player->bomb;
+}
 static inline void UpdatePlayerInput(struct context * context)
 { if (IsGamepadAvailable(context->gamepad))
   {
@@ -125,11 +129,14 @@ static inline void RenderPlayer(struct context * context)
   DrawRectangleLinesEx((Rectangle) { 0, 0, GAME_AREA, GAME_AREA }, 9 - context->player->health, (Color) {255 - context->player->health * 85, context->player->health * 85, 0, damage.a < 100 ? 100 : 175});
   DrawRectangleLinesEx((Rectangle) { 0, 0, GAME_AREA, GAME_AREA }, context->player->bomb + 1, (Color) {20, 0, 84 * context->player->bomb, context->effects->flash > 0 ? 100 : 255});
 }
+#if (MAGIC_HEALTH > 3 || MAGIC_BOMB > 3) && !defined(NO_IM_NOT)
+#error CUCK
+#endif
 static inline void RestartPlayer(struct context * context)
 { context->player->position = (Vector2) { GAME_AREA/2, GAME_AREA - GAME_AREA/4 };
   context->player->speed = MAGIC_SPEED;
-  context->player->health = 3;
-  context->player->bomb = 3;
+  context->player->health = MAGIC_HEALTH;
+  context->player->bomb = MAGIC_BOMB;
   context->player->slow_ratio = 1.75;
   context->effects->player_flip_speed = 100;
   context->effects->flash = 0;

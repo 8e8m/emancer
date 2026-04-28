@@ -1,12 +1,28 @@
 static inline void UpdateBackground(struct context * context)
-{ context->effects->checker_alpha = fabs(cos(context->time/25)) * 60 + 94;
+{ short r,g,b; r=g=b=0;
+  context->effects->checker_alpha = fabs(cos(context->time/25)) * 60 + 94;
+  if (context->effects->background_color.r != context->effects->target_background_color.r)
+  { if (context->effects->target_background_color.r > context->effects->background_color.r) r=1;
+    else r=-1;
+  }
+  if (context->effects->background_color.g != context->effects->target_background_color.g)
+  { if (context->effects->target_background_color.g > context->effects->background_color.r) g=1;
+    else g=-1;
+  }
+  if (context->effects->background_color.b != context->effects->target_background_color.b)
+  { if (context->effects->target_background_color.b > context->effects->background_color.r) b=1;
+    else b=-1;
+  }
+  context->effects->background_color.r += r;
+  context->effects->background_color.g += g;
+  context->effects->background_color.b += b;
 }
 static inline void RenderBackground(struct context * context)
 { int i;
   double offset = fmod(context->time * context->effects->scroll_speed, GAME_AREA);
   ClearBackground(BLACK);
-  DrawTexture(context->texture[BACKGROUND], 0, offset - GAME_AREA, WHITE);
-  DrawTexture(context->texture[BACKGROUND], 0, offset, WHITE);
+  DrawTexture(context->texture[BACKGROUND], 0, offset - GAME_AREA, context->effects->background_color);
+  DrawTexture(context->texture[BACKGROUND], 0, offset, context->effects->background_color);
   for (i = 0; i < GAME_AREA; i += context->texture[CHECKER].width)
   { DrawTexturePro(context->texture[CHECKER],
                    (Rectangle) {0, 0, context->texture[CHECKER].width, context->texture[CHECKER].height},
@@ -19,16 +35,16 @@ static inline void RenderBackground(struct context * context)
   }
 }
 static inline void RenderBorder(struct context * context)
-{ Color color = (Color) {78*0.9, 90*0.9, 108*0.9, 255}; // meant to match BACKGROUND, variablize maybe
-  DrawTexturePro(context->texture[BORDER],
+{ DrawTexturePro(context->texture[BORDER],
                  (Rectangle) { 0, 0, context->texture[BORDER].width, context->texture[BORDER].height},
                  (Rectangle) { 0, 0, context->area->x / 2 - GAME_AREA / 2, context->area->y}, 
-                 (Vector2){0,0}, 0, color);
+                 (Vector2){0,0}, 0, context->effects->background_color);
   DrawTexturePro(context->texture[BORDER],
                  (Rectangle) { 0, 0, context->texture[BORDER].width, context->texture[BORDER].height},
                  (Rectangle) { context->area->x / 2 + GAME_AREA / 2, 0, context->area->x / 2 - GAME_AREA / 2, context->area->y}, 
-                 (Vector2){0,0}, 0, color);
+                 (Vector2){0,0}, 0, context->effects->background_color);
 }
 static inline void RestartBackground(struct context * context)
 { context->effects->scroll_speed = 3;
+  context->effects->background_color = context->effects->target_background_color = WHITE;
 }

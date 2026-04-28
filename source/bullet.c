@@ -26,6 +26,17 @@ static inline void Group(struct context * context, size_t count, Vector3 start, 
   b->ttl[b->group_used] = ttl;
   b->group_used++;
 }
+static inline void ShootAt(struct context * context, Vector2 position, size_t group, float speed)
+{ struct bullet * b = &context->bullet;
+  size_t start = group != 0 ? b->count[group-1] : 0;
+  float px = position.x;
+  float py = position.y;
+  for (size_t j = start; j < b->count[group]; ++j)
+  { b->r[j] = atan2f(py - b->y[j], px - b->x[j]);
+  }
+  b->dx[group] = speed;
+  b->dy[group] = 0;
+}
 static inline void UpdateBullet(struct context * context)
 { size_t i, j;
   struct bullet * b = &context->bullet;

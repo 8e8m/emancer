@@ -12,6 +12,8 @@
 #define MAGIC_FLASH 1.2
 #define MAGIC_PLAYER_RADIUS 1
 #define MAGIC_INVULN_TIME 70
+#define MAGIC_HEALTH 3
+#define MAGIC_BOMB 3
 /* table of abstracted keyboard input */
 /* We'll name this their functionality for sake of usability considering keyboard space is much larger */
 enum kconfig
@@ -46,6 +48,7 @@ struct effects
   int checker_alpha;
   float flash;
   float tutor_alpha;
+  Color background_color, target_background_color;
 };
 struct bullet
 { size_t group_max, group_used;
