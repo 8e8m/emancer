@@ -1,7 +1,7 @@
-#define MAGIC_SPEED 200
 static inline void RestartContext(struct context * context);
 static inline void Die(struct context * context)
-{ RestartContext(context);
+{ PlaySound(context->sound[DEATH_SOUND]);
+  RestartContext(context);
 }
 static inline void UpdatePlayerInput(struct context * context)
 { if (IsGamepadAvailable(context->gamepad))
@@ -72,7 +72,6 @@ static inline void UpdatePlayerInput(struct context * context)
       ||  IsGamepadButtonPressed(context->gamepad, context->gconfig[R_LEFT]))
       )
   { context->bullet.group_used = 0;
-    #define MAGIC_FLASH 1.2
     context->effects->flash = MAGIC_FLASH;
     context->player->bomb--;
   }
@@ -93,14 +92,12 @@ static inline void UpdatePlayer(struct context * context)
   if (context->player->invuln > 0)
   { context->player->invuln -= context->delta;
   }
-  #define MAGIC_PLAYER_RADIUS 1
-  #define MAGIC_INVULN_TIME 70
-  int i, j;
+  size_t i, j;
   size_t size_map[] = { 32, 24, 20, 16, 12, 8 };
   struct bullet * b = &context->bullet;
   for (i = 0; i < b->group_used; ++i)
   { if (b->ttl[i]
-    && b->hurts[i]
+    && b->hurts[i] > 1
     && context->player->invuln <= 0)
     for (j = 0; j < b->count[i]; ++j)
     { if (CheckCollisionCircles((Vector2) { b->x[j], b->y[j] }, size_map[b->size[i]-B32]/3, context->player->position, MAGIC_PLAYER_RADIUS))
@@ -122,7 +119,6 @@ static inline void RenderPlayer(struct context * context)
   if (context->player->speed != MAGIC_SPEED)
   { DrawCenteredWrapped(context->texture + B20, context->player->position, 0, fmodf(context->time, 2), damage);
   }
-  Color color = GREEN;
   DrawRectangleLinesEx((Rectangle) { 0, 0, GAME_AREA, GAME_AREA }, 9 - context->player->health, (Color) {255 - context->player->health * 85, context->player->health * 85, 0,
                                                                                                          damage.a < 100 ? 100 : 175});
   DrawRectangleLinesEx((Rectangle) { 0, 0, GAME_AREA, GAME_AREA }, context->player->bomb + 1, (Color) {20, 0, 84 * context->player->bomb, context->effects->flash > 0 ? 100 : 255});

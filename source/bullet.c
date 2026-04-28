@@ -25,20 +25,24 @@ static inline void UpdateBullet(struct context * context)
       &&  b->ttl[i] <= 0)
       { --b->group_used;
       }
+      if (b->hurts[i] < 1)
+      { b->hurts[i] += 0.01;
+      }
       for (j = i != 0 ? b->count[i-1] : 0; j < b->count[i]; ++j)
       { b->x[j] += b->dx[i] * cosf(b->r[j]) - b->dy[i] * sinf(b->r[j]);
         b->y[j] += b->dx[i] * sinf(b->r[j]) + b->dy[i] * cosf(b->r[j]);
         b->r[j] += b->dr[i];
-        if (b->x[j] > GAME_AREA + size_map[b->size[i]])
+        size_t size = (size_t) b->size[i] < sizeof(size_map) / sizeof(*size_map) ? b->size[i] : 0;
+        if (b->x[j] > GAME_AREA + size)
         { b->x[j] = fmodf(b->x[j], GAME_AREA);
         }
-        if (b->x[j] <             size_map[b->size[i]])
+        if (b->x[j] <             size)
         { b->x[j] = fmodf(b->x[j], GAME_AREA);
         }
-        if (b->y[j] > GAME_AREA + size_map[b->size[i]])
+        if (b->y[j] > GAME_AREA + size)
         { b->y[j] = fmodf(b->y[j], GAME_AREA);
         }
-        if (b->y[j] <             size_map[b->size[i]])
+        if (b->y[j] <             size)
         { b->y[j] = fmodf(b->y[j], GAME_AREA);
         }
       }
@@ -51,7 +55,7 @@ static inline void RenderBullet(struct context * context)
   for (i = 0; i < b->group_used; ++i)
   { if (b->ttl[i])
     { for (j = i != 0 ? b->count[i-1] : 0; j < b->count[i]; ++j)
-      { DrawCenteredWrapped(&context->texture[b->size[i]], (Vector2) { b->x[j], b->y[j] }, 0, b->r[j], b->color[i]);
+      { DrawCenteredWrapped(&context->texture[b->size[i]], (Vector2) { b->x[j], b->y[j] }, 0, b->r[j], ColorAlpha(b->color[i], b->hurts[i]));
       }
     }
   }
@@ -61,27 +65,26 @@ static inline void RestartBullet(struct context * context)
   for (size_t i = 0; i < b->group_max; ++i)
   { b->color[i] = RED;
     b->size[i] = B24;
-    b->hurts[i] = 1;
+    b->hurts[i] = 0;
   }
   b->group_used = 0;
 }
 static inline void InitBullet(struct context * context)
-{ size_t i;
-  struct bullet * b = &context->bullet;
+{ struct bullet * b = &context->bullet;
   b->group_max = 64;
   b->bullet_max = 2048;
-  b->x     = calloc(sizeof(b->x), b->bullet_max);
-  b->y     = calloc(sizeof(b->y), b->bullet_max);
-  b->r     = calloc(sizeof(b->r), b->bullet_max);
-  b->ttl   = calloc(sizeof(b->ttl), b->group_max);
-  b->tm    = calloc(sizeof(b->tm), b->group_max);
-  b->count = calloc(sizeof(b->count), b->group_max);
-  b->size  = calloc(sizeof(b->size), b->group_max);
-  b->color = calloc(sizeof(b->color), b->group_max);
-  b->hurts = calloc(sizeof(b->hurts), b->group_max);
-  b->dx = calloc(sizeof(b->dx), b->group_max);
-  b->dy = calloc(sizeof(b->dy), b->group_max);
-  b->dr = calloc(sizeof(b->dr), b->group_max);
+  b->x     = calloc(b->bullet_max, sizeof(b->x));
+  b->y     = calloc(b->bullet_max, sizeof(b->y));
+  b->r     = calloc(b->bullet_max, sizeof(b->r));
+  b->ttl   = calloc(b->group_max, sizeof(b->ttl));
+  b->tm    = calloc(b->group_max, sizeof(b->tm));
+  b->count = calloc(b->group_max, sizeof(b->count));
+  b->size  = calloc(b->group_max, sizeof(b->size));
+  b->color = calloc(b->group_max, sizeof(b->color));
+  b->hurts = calloc(b->group_max, sizeof(b->hurts));
+  b->dx = calloc(b->group_max, sizeof(b->dx));
+  b->dy = calloc(b->group_max, sizeof(b->dy));
+  b->dr = calloc(b->group_max, sizeof(b->dr));
 }
 static inline void DeinitBullet(struct context * context)
 { struct bullet * b = &context->bullet;

@@ -22,10 +22,10 @@ static inline void RenderContext(struct context * context)
   ||  context->area->y > GAME_AREA)
   { RenderBorder(context);
   }
-  DrawTexturePro(context->render.texture, 
+  DrawTexturePro(context->render.texture,
                  (Rectangle) { 0, 0, GAME_AREA, -GAME_AREA},
                  (Rectangle) { context->area->x / 2 - GAME_AREA/2, 0, GAME_AREA, context->area->y}, 
-                 (Vector2){0,0}, 0, context->effects->flash > 0 ? BLUE : WHITE);
+                 (Vector2){0,0}, 0, context->effects->flash > 0 ? (Color) { 255 * -context->effects->flash, 255 * -context->effects->flash, 255, 255 } : WHITE);
   DrawCentered(context->texture+TUTOR, (Vector2) {context->area->x/10, context->area->y/10}, 0, 0, ColorAlpha(WHITE, context->effects->tutor_alpha));
 }
 /* Instant restarts are done via minimal changes to state via restart functions
@@ -54,8 +54,8 @@ static inline void InitContext(struct context * context)
       LoadTexture("resource/bullet12.png"),
       LoadTexture("resource/bullet8.png"),
     };
+  memset(context, 0, sizeof(*context));
   context->render = LoadRenderTexture(GAME_AREA, GAME_AREA);
-  memset(context, 0, sizeof(context));
   memcpy(context->texture, texture, sizeof(texture) / sizeof(*texture) * sizeof(Texture));
   context->area->x = GetRenderWidth();
   context->area->y = GetRenderHeight();
@@ -83,7 +83,7 @@ static inline void PreinitContext(char * name)
   InitAudioDevice();
   SetMasterVolume(0.1f);
 }
-static inline void LoopContext(struct context * context)
+static inline void ContextLoop(struct context * context)
 { while (!WindowShouldClose())
   { SetTargetFPS(IsWindowFocused() ? 60 : 10);
     UpdateContext(context);

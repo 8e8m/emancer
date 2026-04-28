@@ -1,6 +1,6 @@
 #!/bin/make -f
 
-CFLAGS   := -std=gnu23 -O2 -flto=auto -g
+CFLAGS   := -std=gnu23 -O2 -flto=auto -g -Wall -Wextra -Wpedantic
 CPPFLAGS := 
 LDFLAGS  := -lraylib -lglfw -lm
 
