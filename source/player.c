@@ -71,9 +71,12 @@ static inline void UpdatePlayerInput(struct context * context)
    && (duokey(IsKeyPressed, BOMB)
       ||  IsGamepadButtonPressed(context->gamepad, context->gconfig[R_LEFT]))
       )
-  { context->bullet.group_used = 0;
+  { context->player->invuln = 200;
     context->effects->flash = MAGIC_FLASH;
     context->player->bomb--;
+  }
+  if (IsKeyPressed(KEY_R))
+  { printf("time:%f\n", context->time);
   }
   context->player->position.x += context->delta * context->player->speed * context->player->move.x;
   context->player->position.y += context->delta * context->player->speed * context->player->move.y;
@@ -97,9 +100,9 @@ static inline void UpdatePlayer(struct context * context)
   struct bullet * b = &context->bullet;
   for (i = 0; i < b->group_used; ++i)
   { if (b->ttl[i]
-    && b->hurts[i] > 1
+    && b->hurts[i] > 0.99
     && context->player->invuln <= 0)
-    for (j = 0; j < b->count[i]; ++j)
+    for (j = i != 0 ? b->count[i-1] : 0; j < b->count[i]; ++j)
     { if (CheckCollisionCircles((Vector2) { b->x[j], b->y[j] }, size_map[b->size[i]-B32]/3, context->player->position, MAGIC_PLAYER_RADIUS))
       { context->player->invuln = MAGIC_INVULN_TIME;
         if (!context->player->health)
@@ -116,11 +119,8 @@ static inline void RenderPlayer(struct context * context)
 { Color damage = ColorAlpha(WHITE, context->player->invuln ? 1 / (context->player->invuln % 10) : 1);
   DrawCenteredWrapped(context->texture + CIRNO, context->player->position, fmod(context->time, context->effects->player_flip_speed) > context->effects->player_flip_speed / 2,
                0, damage);
-  if (context->player->speed != MAGIC_SPEED)
-  { DrawCenteredWrapped(context->texture + B20, context->player->position, 0, fmodf(context->time, 2), damage);
-  }
-  DrawRectangleLinesEx((Rectangle) { 0, 0, GAME_AREA, GAME_AREA }, 9 - context->player->health, (Color) {255 - context->player->health * 85, context->player->health * 85, 0,
-                                                                                                         damage.a < 100 ? 100 : 175});
+  DrawCenteredWrapped(context->texture + B20, context->player->position, 0, fmodf(context->time, 2), ColorAlpha(damage, context->player->speed != MAGIC_SPEED ? 1 : 0.5));
+  DrawRectangleLinesEx((Rectangle) { 0, 0, GAME_AREA, GAME_AREA }, 9 - context->player->health, (Color) {255 - context->player->health * 85, context->player->health * 85, 0, damage.a < 100 ? 100 : 175});
   DrawRectangleLinesEx((Rectangle) { 0, 0, GAME_AREA, GAME_AREA }, context->player->bomb + 1, (Color) {20, 0, 84 * context->player->bomb, context->effects->flash > 0 ? 100 : 255});
 }
 static inline void RestartPlayer(struct context * context)

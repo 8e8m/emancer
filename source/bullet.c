@@ -1,3 +1,15 @@
+static inline void DefaultVisual(struct context * context, int size, Color color)
+{ struct bullet * b = &context->bullet;
+  for (size_t i = 0; i < b->group_max; ++i)
+  { b->color[i] = color;
+    b->size[i] = size;
+  }
+}
+static inline void Visual(struct context * context, int size, Color color)
+{ struct bullet * b = &context->bullet;
+  b->color[b->group_used] = color;
+  b->size[b->group_used] = size;
+}
 static inline void Group(struct context * context, size_t count, Vector3 start, Vector3 offset, Vector3 delta, unsigned ttl)
 { struct bullet * b = &context->bullet;
   size_t i, first = b->group_used ? b->count[b->group_used-1] : 0;
@@ -20,31 +32,32 @@ static inline void UpdateBullet(struct context * context)
   size_t size_map[] = { 32, 24, 20, 16, 12, 8 };
   for (i = 0; i < b->group_used; ++i)
   { if (b->ttl[i])
-    { b->ttl[i] -= context->delta;
-      if (i == b->group_used-1
-      &&  b->ttl[i] <= 0)
-      { --b->group_used;
+    { if (b->ttl[i] < context->time)
+      { if (b->group_used != 0)
+        { --b->group_used;
+        }
+        /* will have the wrong nondefault color potentially. */
+        b->ttl[i] = 0;
+        b->hurts[i] = 0;
+        break;
       }
-      if (b->hurts[i] < 1)
-      { b->hurts[i] += 0.01;
+      if (b->hurts[i] < 1
+      &&  b->ttl[i] - 160 > context->time)
+      { b->hurts[i] += 0.0075f;
+      }
+      else if (b->hurts[i] > 0)
+      { b->hurts[i] -= 0.01f;
       }
       for (j = i != 0 ? b->count[i-1] : 0; j < b->count[i]; ++j)
       { b->x[j] += b->dx[i] * cosf(b->r[j]) - b->dy[i] * sinf(b->r[j]);
         b->y[j] += b->dx[i] * sinf(b->r[j]) + b->dy[i] * cosf(b->r[j]);
         b->r[j] += b->dr[i];
-        size_t size = (size_t) b->size[i] < sizeof(size_map) / sizeof(*size_map) ? b->size[i] : 0;
-        if (b->x[j] > GAME_AREA + size)
-        { b->x[j] = fmodf(b->x[j], GAME_AREA);
-        }
-        if (b->x[j] <             size)
-        { b->x[j] = fmodf(b->x[j], GAME_AREA);
-        }
-        if (b->y[j] > GAME_AREA + size)
-        { b->y[j] = fmodf(b->y[j], GAME_AREA);
-        }
-        if (b->y[j] <             size)
-        { b->y[j] = fmodf(b->y[j], GAME_AREA);
-        }
+        size_t size = b->size[i] - B32;
+        size = size < sizeof(size_map) / sizeof(*size_map) ? size_map[size] : 0;
+        b->x[j] = fmodf(b->x[j], GAME_AREA);
+        if (b->x[j] < 0) b->x[j] += GAME_AREA;
+        b->y[j] = fmodf(b->y[j], GAME_AREA);
+        if (b->y[j] < 0) b->y[j] += GAME_AREA;
       }
     }
   }
@@ -63,11 +76,11 @@ static inline void RenderBullet(struct context * context)
 static inline void RestartBullet(struct context * context)
 { struct bullet * b = &context->bullet;
   for (size_t i = 0; i < b->group_max; ++i)
-  { b->color[i] = RED;
-    b->size[i] = B24;
+  { b->color[i] = BLUE;
     b->hurts[i] = 0;
   }
   b->group_used = 0;
+  DefaultVisual(context, B24, BLUE);
 }
 static inline void InitBullet(struct context * context)
 { struct bullet * b = &context->bullet;
@@ -77,7 +90,6 @@ static inline void InitBullet(struct context * context)
   b->y     = calloc(b->bullet_max, sizeof(b->y));
   b->r     = calloc(b->bullet_max, sizeof(b->r));
   b->ttl   = calloc(b->group_max, sizeof(b->ttl));
-  b->tm    = calloc(b->group_max, sizeof(b->tm));
   b->count = calloc(b->group_max, sizeof(b->count));
   b->size  = calloc(b->group_max, sizeof(b->size));
   b->color = calloc(b->group_max, sizeof(b->color));
@@ -92,7 +104,6 @@ static inline void DeinitBullet(struct context * context)
   free(b->y);
   free(b->r);
   free(b->ttl);
-  free(b->tm);
   free(b->count);
   free(b->size);
   free(b->color);

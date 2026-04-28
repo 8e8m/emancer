@@ -52,7 +52,6 @@ struct bullet
   size_t bullet_max;
   float * x, * y, * r;
   /* group_max ... */
-  unsigned * tm; /* inverts ttl when time */
   unsigned * ttl;
   size_t * count; /* absolute, count[group_used-1] == bullet_top */
   float * hurts;

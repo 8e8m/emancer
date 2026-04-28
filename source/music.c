@@ -9,6 +9,9 @@ static inline void UpdateMusic(struct context * context)
 }
 static inline void RestartMusic(struct context * context)
 { context->music_select = 0;
+  for (size_t i = 0; i < END_SONG; ++i)
+  { StopSound(context->music[i]);
+  }
   PlaySound(context->music[context->music_select]);
 }
 static inline void InitMusic(struct context * context)

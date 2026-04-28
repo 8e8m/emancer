@@ -2,7 +2,7 @@ static inline void UpdateContext(struct context * context)
 { context->area->x = GetRenderWidth();
   context->area->y = GetRenderHeight();
   context->delta = GetFrameTime();
-  context->time += context->delta * 100;
+  context->time += context->delta * 100; /* don't touch this, absolutely critical */
   if (context->time > 2000)
   { context->effects->tutor_alpha -= 0.01f;
   }
