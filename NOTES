@@ -1,0 +1,119 @@
+This document is a schizopost and you have been warned.
+
+The sound design herein is mostly rips of generally copyright-lean
+stuff. I plan to add proper "small" effects for hits, deaths, spells,
+etc. which should add a decent bit more character atop the lackluster
+gameplay and middling visuals.
+
+-- Visual notes that'll probably go unused:
+
+I have no asset for characters besides Cirno, I attempted drafting a
+Flan asset however nothing looked even remotely passable. I assume I
+would have to make something in blender which would not go with the
+Cirno asset at all and would then require more work. As the time is
+expired there is little reason to do this, however in future this will
+be the path I take. I think the cirno asset is passable however it is
+not cogent to further additions apart from the Touhou look.
+
+Add mountains that shift in an inverted triangle along
+tilt scolling background background with perspective, zoom or upscale
+as needed.  healthbar should be a bar, where the most important is
+longest and by the edge of the screen, and each subsequent bar is
+shorter. Color gradient and pad with contrast.  Spellbar should be a
+split in the above healthbar, use a very different color grade.
+Bosses' health bar should not be a bar, but a segmented spinning
+circle in the topleft: i.e. 4 segments, ensuring visibility, large, in
+corner, with the same gradient idea, should show damage per phase
+relatively well. The spinning can vary with damage.
+
+Also consider the idea of making said healthbar spin at the rate of
+damage, though this may not be ideal. Perhaps an endless circle where
+the color grade actually determines the amount of damage? ((100%) cyan
+-> (50%) purple -> (10%) red).  Maybe add a trail to cirno.
+
+After implementing the prior paragraph as a border, it actually looks
+really nice, however due to the obviously small margins it of course
+mixes in color thus the visual clarity is not great. I believe that,
+abstractly the representation could be quite easy to understand
+assuming someone has played some games before. Languageless design is
+a very interesting idea to me, where a player could, with minimal
+experience, understand a game. Of course you have to make assumptions,
+you can't expect to teach a player how to use a keyboard or controller
+or to look at the monitor, but you can utilize some fundamental
+generalized assumptions which'll probably go bad at some point in the
+future (WASD, arrow keys.)
+
+-- rant that ends up in me hating qwerty as a poor dvorak user:
+
+I think software, for humans, should be for humans: People playing
+your game have played games before, and thus applying normal standards
+helps most players pick things up. Breaking the rules of those
+standards can ruin someone's transferable muscle memory
+(i.e. something small like what down or up does in a side scrolling
+platformer, being replaced by an extra jump key or vice versa.)
+Ideally, you could combine all these general standards and their
+variations into one complete keyboard set that would ensure that on
+average the button you press does what you think it does, like Z
+(again, qwerty) in an RPG.
+
+QWERTY verses other layouts causes a huge problem that doesn't exist
+with controllers because QWERTY sucks but is just standard enough to
+be the complete normal (nothing else exists) assumption. This is a
+problem when you come to an input system where you must ask the
+question of what the keyboard looks like on the physical layer.  I am
+going to make the assumption that most (read: all) keyboards printed
+for Americans are QWERTY, and therefore the physical key layer is the
+most useful, but ideally we could have a program that would parse
+this, and then translate the keypresses we want to the system layout
+(QWERTY WASD -> Dvorak <AOE) thus making the ingame key
+representations correct, but that's its own nightmare.
+
+A lot of games got this almost right, being using the physical layout
+by default, which is by far the most useful for QWERTY boards as it
+does well and truly ensure every keyboard works the same. Source
+engine does exactly this, up until Source 2 where they changed it to
+be simulated, which is an improvement for non-QWERTY simulated keys
+theoretically, however the layout is still based on the physical
+presentation rather than the digital representation.
+
+Lots of my issue with this as an idea is that it's not really easy to
+implement a transient keyboard application, but perhaps I'm
+paranoid. English is a universal standard for computing and always
+will be. QWERTY carries on because it is too standard, despite being a
+layout designed to be as inefficient as possible.
+
+The ideal case is thus: We query the system layout, we provide our on
+layout on some standard, say QWERTY, we then translate this
+positionally (QWERTY letter s becomes o in Dvorak land) into the
+system layout and always use that. I don't know of a library to do
+this. I know that windowing frameworks do not provide this facility
+(GLFW/SDL, I could be wrong.) This basically means if we want this
+behaviour, which is the obvious best way (human orient) to do things,
+we'll have to generate tables for N layouts until we're happy with
+ourselves. If we were presented with the physical layout, we could
+utilize that to skip this table mapping such that a physical position
+would be retrieved and we'd then map our qwerty physical position to
+whatever that key is and we'd achieve an anonymous keyboard mapping
+with zero problems.  However, Mechanical keyboard losers exist. I hate
+mechanical keyboard people so much. why yes, I would like 70% of a
+keyboard.  Hence, this would then be a physical mapping requiring the
+type of keyboard in which we'd map our keys from, thus moving from the
+simulated table to the physical table.  Obviously neither of these
+approaches work without a huge dataset of everything ever, hence you
+could obviously just default to something that will work well in
+almost all cases like the physical mapping, and then have the fallback
+of the simulated workflow, and then otherwise set qwerty and expect
+the user to rebind keys, thus ensuring normal ANSI/ISO boards will
+always work no mater the layout, other boards will work as long as we
+know what they're using (dv,azert,workman,colemak,maltron :), other
+keyboards for fake languages like russian, chinese, etc.)  In summary,
+there are ten million variations of keyboards and almost all games
+neglect almost all of them but that's why we have key rebinding
+because doing the requisite work for the above is like highlighting,
+possible for one application but in general nearly impossible without
+40 years of manhours from the most severely autistic men alive.
+
+It's better to expect 2 seconds of configuration than to expect 2
+months of data aggregation. Except for controllers, which just work
+because universally everyone assumes people are using Xbox
+controllers.... oh, it's literally the same... nevermind....
