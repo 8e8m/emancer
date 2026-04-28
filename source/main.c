@@ -36,10 +36,10 @@ enum kconfig
  * This thinking is technically applicable to keyboards however I don't wish to do that for this game. kconfig[104][2]
  */
 enum gconfig
-  { SELECT, START, L_LEFT, L_RIGHT, L_UP, L_DOWN, R_LEFT, R_RIGHT, R_UP, R_DOWN, L_TRIGGER, R_TRIGGER,
+  { START, L_LEFT, L_RIGHT, L_UP, L_DOWN, R_LEFT, R_RIGHT, R_UP, R_DOWN,
   };
 enum texture
-  { BACKGROUND, CHECKER, BORDER, CIRNO, FLAN, B32, B24, B20, B16, B12, B8, END_TEXTURE,
+  { BACKGROUND, CHECKER, BORDER, CIRNO, FLAN, TUTOR, B32, B24, B20, B16, B12, B8, END_TEXTURE,
   };
 enum song
   { SONG_A, SONG_B, SONG_C, END_SONG,
@@ -48,7 +48,7 @@ struct player {
   Vector2 position, move;
   double speed;
   double slow_ratio;
-  int health, spell;
+  int health, bomb;
   int invuln;
 };
 struct boss {
@@ -61,6 +61,7 @@ struct effects {
   double player_flip_speed;
   int checker_alpha;
   float flash;
+  float tutor_alpha;
 };
 struct bullet {
   size_t group_max, group_used;
@@ -142,6 +143,5 @@ public static inline int Main( int ac , char * av [ ] )
   CloseWindow();
   return 0;
 }
-
 int main(int ac, char ** av)
 { return Main(ac,av); }

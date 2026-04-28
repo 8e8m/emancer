@@ -1,0 +1,8 @@
+ensure libraylib.so.5.5/libglfw.so exists in your LD_LIBRARY_PATH
+
+WASD / ARROW KEYS / LEFT STICK
+SHIFT /	(PS: X) (XBONE: A)
+BOMB / (PS: []) (XBONE: X)
+
+make run
+Please Enjoy.

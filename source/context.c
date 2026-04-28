@@ -3,6 +3,9 @@ static inline void UpdateContext(struct context * context)
   context->area->y = GetRenderHeight();
   context->delta = GetFrameTime();
   context->time += context->delta * 100;
+  if (context->time > 2000)
+  { context->effects->tutor_alpha -= 0.01f;
+  }
   UpdateBackground(context);
   UpdatePlayer(context);
   UpdateBullet(context);
@@ -22,6 +25,7 @@ static inline void RenderContext(struct context * context)
                  (Rectangle) { 0, 0, GAME_AREA, -GAME_AREA},
                  (Rectangle) { context->area->x / 2 - GAME_AREA/2, 0, GAME_AREA, context->area->y}, 
                  (Vector2){0,0}, 0, context->effects->flash > 0 ? BLUE : WHITE);
+  DrawCentered(context->texture+TUTOR, (Vector2) {context->area->x/10, context->area->y/10}, 0, 0, ColorAlpha(WHITE, context->effects->tutor_alpha));
 }
 static inline void InitContext(struct context * context)
 { Texture texture[] =
@@ -30,6 +34,7 @@ static inline void InitContext(struct context * context)
       LoadTexture("resource/border.png"),
       LoadTexture("resource/cirno.png"),
       LoadTexture("resource/flan.png"),
+      LoadTexture("resource/tutor.png"),
       LoadTexture("resource/bullet32.png"),
       LoadTexture("resource/bullet24.png"),
       LoadTexture("resource/bullet20.png"),
@@ -46,6 +51,7 @@ static inline void InitContext(struct context * context)
   InitBullet(context);
   InitBackground(context);
   InitMusic(context);
+  context->effects->tutor_alpha = 1;
 }
 static inline void DeinitContext(struct context * context)
 { int i = 0;
