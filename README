@@ -1,8 +1,15 @@
-ensure libraylib.so.5.5/libglfw.so exists in your LD_LIBRARY_PATH
+You must have emscripten via emsdk installed.
 
-WASD / ARROW KEYS / LEFT STICK
-SHIFT /	(PS: X) (XBONE: A)
-BOMB / (PS: []) (XBONE: X)
+Provide
+  libraylib.web.a
+ from
+  emmake make PLATFORM=PLATFORM_WEB BUILD_MODE=RELEASE
+   in raylib/src
 
-make run
-Please Enjoy.
+emmake make
+emrun emancer.index
+
+Please note that if your layout keys are not QWERTY your input will be strange, unfortunately.
+
+Arrow keys still exist, and of course the bomb key is still X/F.
+Gamepad should work.

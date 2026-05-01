@@ -78,8 +78,9 @@ static inline void DeinitContext(struct context * context)
 static inline void PreinitContext(char * name)
 { srand(time(NULL));
   SetTraceLogLevel(LOG_ERROR);
-  SetConfigFlags(FLAG_MSAA_4X_HINT);
-  InitWindow(0, 0, name);
+  SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
+  InitWindow(1920, 1080, name);
+  ToggleFullscreen();
   InitAudioDevice();
   SetMasterVolume(0.1f);
 }
