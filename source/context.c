@@ -83,14 +83,18 @@ static inline void PreinitContext(char * name)
   InitAudioDevice();
   SetMasterVolume(0.1f);
 }
+struct context * g_context;
+static inline void ContextWeb(void)
+{ SetTargetFPS(IsWindowFocused() ? 60 : 10);
+  UpdateContext(g_context);
+  { BeginDrawing();
+    RenderContext(g_context);
+  } EndDrawing();
+}
 static inline void ContextLoop(struct context * context)
-{ while (!WindowShouldClose())
-  { SetTargetFPS(IsWindowFocused() ? 60 : 10);
-    UpdateContext(context);
-    { BeginDrawing();
-      RenderContext(context);
-    } EndDrawing();
-  }
+{
+  g_context = context;
+  emscripten_set_main_loop(ContextWeb, 0, 1);
 }
 static inline void PostdeinitContext(void)
 { CloseAudioDevice();
