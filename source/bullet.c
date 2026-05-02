@@ -1,6 +1,6 @@
 static inline void DefaultVisual(struct context * context, int size, Color color)
 { struct bullet * b = &context->bullet;
-  for (size_t i = 0; i < b->group_max; ++i)
+  for (size_t i = 0; i < GROUP_LIMIT; ++i)
   { b->color[i] = color;
     b->size[i] = size;
   }
@@ -13,7 +13,7 @@ static inline void Visual(struct context * context, int size, Color color)
 static inline void Group(struct context * context, size_t count, Vector3 start, Vector3 offset, Vector3 delta, unsigned ttl)
 { struct bullet * b = &context->bullet;
   size_t i, first = b->group_used ? b->count[b->group_used-1] : 0;
-  if (b->group_used >= b->group_max) { return; }
+  if (b->group_used >= GROUP_LIMIT) { return; }
   b->count[b->group_used] = count + first;
   for (i = first; i < b->count[b->group_used]; ++i)
   { b->x[i] = start.x + (i - first) * offset.x;
@@ -43,16 +43,7 @@ static inline void UpdateBullet(struct context * context)
   size_t size_map[] = { 32, 24, 20, 16, 12, 8 };
   for (i = 0; i < b->group_used; ++i)
   { if (b->ttl[i])
-    { if (b->ttl[i] < context->time)
-      { if (b->group_used != 0)
-        { --b->group_used;
-        }
-        /* will have the wrong nondefault color potentially. */
-        b->ttl[i] = 0;
-        b->hurts[i] = 0;
-        break;
-      }
-      if (b->hurts[i] < 1
+    { if (b->hurts[i] < 1
       &&  b->ttl[i] - 160 > context->time)
       { b->hurts[i] += 0.0075f;
       }
@@ -86,40 +77,10 @@ static inline void RenderBullet(struct context * context)
 }
 static inline void RestartBullet(struct context * context)
 { struct bullet * b = &context->bullet;
-  for (size_t i = 0; i < b->group_max; ++i)
+  for (size_t i = 0; i < GROUP_LIMIT; ++i)
   { b->color[i] = BLUE;
     b->hurts[i] = 0;
   }
   b->group_used = 0;
   DefaultVisual(context, B24, BLUE);
-}
-static inline void InitBullet(struct context * context)
-{ struct bullet * b = &context->bullet;
-  b->group_max = 64;
-  b->bullet_max = 2048;
-  b->x     = calloc(b->bullet_max, sizeof(b->x));
-  b->y     = calloc(b->bullet_max, sizeof(b->y));
-  b->r     = calloc(b->bullet_max, sizeof(b->r));
-  b->ttl   = calloc(b->group_max, sizeof(b->ttl));
-  b->count = calloc(b->group_max, sizeof(b->count));
-  b->size  = calloc(b->group_max, sizeof(b->size));
-  b->color = calloc(b->group_max, sizeof(b->color));
-  b->hurts = calloc(b->group_max, sizeof(b->hurts));
-  b->dx = calloc(b->group_max, sizeof(b->dx));
-  b->dy = calloc(b->group_max, sizeof(b->dy));
-  b->dr = calloc(b->group_max, sizeof(b->dr));
-}
-static inline void DeinitBullet(struct context * context)
-{ struct bullet * b = &context->bullet;
-  free(b->x);
-  free(b->y);
-  free(b->r);
-  free(b->ttl);
-  free(b->count);
-  free(b->size);
-  free(b->color);
-  free(b->hurts);
-  free(b->dx);
-  free(b->dy);
-  free(b->dr);
 }

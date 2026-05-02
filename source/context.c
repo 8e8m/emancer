@@ -9,7 +9,6 @@ static inline void UpdateContext(struct context * context)
   UpdateBackground(context);
   UpdatePlayer(context);
   UpdateBullet(context);
-  UpdateMusic(context);
   UpdateBoss(context);
 }
 static inline void RenderContext(struct context * context)
@@ -27,6 +26,9 @@ static inline void RenderContext(struct context * context)
                  (Rectangle) { context->area->x / 2 - GAME_AREA/2, 0, GAME_AREA, context->area->y}, 
                  (Vector2){0,0}, 0, context->effects->flash > 0 ? (Color) { 255 * -context->effects->flash, 255 * -context->effects->flash, 255, 255 } : WHITE);
   DrawCentered(context->texture+TUTOR, (Vector2) {context->area->x/10, context->area->y/10}, 0, 0, ColorAlpha(WHITE, context->effects->tutor_alpha));
+  if (context->thanks)
+  { DrawCentered(context->texture+THANKS, (Vector2) {context->area->x/2, context->area->y/2}, 0, 0, RED);
+  }
 }
 /* Instant restarts are done via minimal changes to state via restart functions
  * This outperforms Deinit Init by ∞ */
@@ -36,7 +38,6 @@ static inline void RestartContext(struct context * context)
   RestartPlayer(context);
   RestartBullet(context);
   RestartBackground(context);
-  RestartMusic(context);
   context->effects->tutor_alpha = 1;
 }
 static inline void InitContext(struct context * context)
@@ -45,7 +46,7 @@ static inline void InitContext(struct context * context)
       LoadTexture("resource/checker.png"),
       LoadTexture("resource/border.png"),
       LoadTexture("resource/cirno.png"),
-      LoadTexture("resource/flan.png"),
+      LoadTexture("resource/thanks.png"),
       LoadTexture("resource/tutor.png"),
       LoadTexture("resource/bullet32.png"),
       LoadTexture("resource/bullet24.png"),
@@ -60,7 +61,6 @@ static inline void InitContext(struct context * context)
   context->area->x = GetRenderWidth();
   context->area->y = GetRenderHeight();
   InitPlayer(context);
-  InitBullet(context);
   InitMusic(context);
   RestartContext(context);
 }
@@ -73,7 +73,6 @@ static inline void DeinitContext(struct context * context)
   { UnloadSound(context->music[i]);
   }
   UnloadRenderTexture(context->render);
-  DeinitBullet(context);
 }
 static inline void PreinitContext(char * name)
 { srand(time(NULL));

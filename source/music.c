@@ -1,18 +1,7 @@
-static inline void UpdateMusic(struct context * context)
-{ if (!IsSoundPlaying(context->music[context->music_select]))
-  { context->music_select = (context->music_select + 1) % 2;
-    if (!context->music_select)
-    { Die(context);
-    }
-    PlaySound(context->music[context->music_select]);
-  }
-}
-static inline void RestartMusic(struct context * context)
-{ context->music_select = 0;
-  for (size_t i = 0; i < END_SONG; ++i)
+static inline void StopMusic(struct context * context)
+{ for (size_t i = 0; i < END_SONG; ++i)
   { StopSound(context->music[i]);
   }
-  PlaySound(context->music[context->music_select]);
 }
 static inline void InitMusic(struct context * context)
 { Sound music[] =

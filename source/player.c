@@ -3,6 +3,9 @@ static inline void Die(struct context * context)
 { PlaySound(context->sound[DEATH_SOUND]);
   RestartContext(context);
 }
+static inline void Info(struct context * context)
+{ printf("time %f phase %d used %ld count %ld\n", context->time, context->phase, context->bullet.group_used, context->bullet.count[context->bullet.group_used-1]);
+}
 static inline void PlayerHeal(struct context * context)
 { if (context->player->health < MAGIC_HEALTH) ++context->player->health;
   if (context->player->bomb < MAGIC_BOMB) ++context->player->bomb;
@@ -81,8 +84,11 @@ static inline void UpdatePlayerInput(struct context * context)
     PlaySound(context->sound[WHISTLE_SOUND]);
   }
   if (IsKeyPressed(KEY_T))
-  { printf("time %f\n", context->time);
+  { Info(context);
   }
+  /* if (IsKeyPressed(KEY_K)) */
+  /* { context->player->ankh = !context->player->ankh; */
+  /* } */
   context->player->position.x += context->delta * context->player->speed * context->player->move.x;
   context->player->position.y += context->delta * context->player->speed * context->player->move.y;
   if (duokey(IsKeyPressed, RESTART)
@@ -108,7 +114,8 @@ static inline void UpdatePlayer(struct context * context)
     && b->hurts[i] > 0.99
     && context->player->invuln <= 0)
     for (j = i != 0 ? b->count[i-1] : 0; j < b->count[i]; ++j)
-    { if (CheckCollisionCircles((Vector2) { b->x[j], b->y[j] }, size_map[b->size[i]-B32]/3, context->player->position, MAGIC_PLAYER_RADIUS))
+    { if (!context->player->ankh
+      && CheckCollisionCircles((Vector2) { b->x[j], b->y[j] }, size_map[b->size[i]-B32]/3, context->player->position, MAGIC_PLAYER_RADIUS))
       { context->player->invuln = MAGIC_INVULN_TIME;
         if (!context->player->health)
         { Die(context);
@@ -122,16 +129,13 @@ static inline void UpdatePlayer(struct context * context)
  freedom:
 }
 static inline void RenderPlayer(struct context * context)
-{ Color damage = ColorAlpha(WHITE, context->player->invuln ? 1 / (context->player->invuln % 10) : 1);
+{ Color damage = ColorAlpha(context->player->ankh ? YELLOW : WHITE, context->player->invuln ? 1 / (context->player->invuln % 10) : 1);
   DrawCenteredWrapped(context->texture + CIRNO, context->player->position, fmod(context->time, context->effects->player_flip_speed) > context->effects->player_flip_speed / 2,
                0, damage);
   DrawCenteredWrapped(context->texture + B20, context->player->position, 0, fmodf(context->time, 2), ColorAlpha(damage, context->player->speed != MAGIC_SPEED ? 1 : 0.5));
   DrawRectangleLinesEx((Rectangle) { 0, 0, GAME_AREA, GAME_AREA }, 9 - context->player->health, (Color) {255 - context->player->health * 85, context->player->health * 85, 0, damage.a < 100 ? 100 : 175});
   DrawRectangleLinesEx((Rectangle) { 0, 0, GAME_AREA, GAME_AREA }, context->player->bomb + 1, (Color) {20, 0, 84 * context->player->bomb, context->effects->flash > 0 ? 100 : 255});
 }
-#if (MAGIC_HEALTH > 3 || MAGIC_BOMB > 3) && !defined(NO_IM_NOT)
-#error CUCK
-#endif
 static inline void RestartPlayer(struct context * context)
 { context->player->position = (Vector2) { GAME_AREA/2, GAME_AREA - GAME_AREA/4 };
   context->player->speed = MAGIC_SPEED;

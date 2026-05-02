@@ -1,3 +1,9 @@
+Emancer: Danmaku for the Danmaku Jam.
+Finished as of 2026-05-02.
+Thanks Anon Anonson for the gamejam <https://game.chud.cyou/260420>
+
+Play it online at <https://game.chud.cyou/emancer>
+
 -- Desktop --
 
 ensure libraylib.so.5.5/libglfw.so exists in your LD_LIBRARY_PATH (or just /usr/lib*)

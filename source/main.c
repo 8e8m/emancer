@@ -30,10 +30,10 @@ enum gconfig
 { START, L_LEFT, L_RIGHT, L_UP, L_DOWN, R_LEFT, R_RIGHT, R_UP, R_DOWN,
 };
 enum texture
-{ BACKGROUND, CHECKER, BORDER, CIRNO, FLAN, TUTOR, B32, B24, B20, B16, B12, B8, END_TEXTURE,
+{ BACKGROUND, CHECKER, BORDER, CIRNO, THANKS, TUTOR, B32, B24, B20, B16, B12, B8, END_TEXTURE,
 };
 enum song
-{ SONG_A, SONG_B, SONG_C, END_SONG,
+{ FLAN, SAKUYA, YUKARI, END_SONG,
 };
 enum sound
 { HIT_SOUND, DEATH_SOUND, WORLD_SOUND, WHISTLE_SOUND, WEIRD_SOUND, REWARD_SOUND
@@ -43,7 +43,7 @@ struct player
   double speed;
   double slow_ratio;
   int health, bomb;
-  int invuln;
+  int invuln, ankh;
 };
 struct effects
 { double scroll_speed;
@@ -53,17 +53,17 @@ struct effects
   float tutor_alpha;
   Color background_color, target_background_color;
 };
+#define BULLET_LIMIT 2048
+#define GROUP_LIMIT 8
 struct bullet
-{ size_t group_max, group_used;
-  size_t bullet_max;
-  float * x, * y, * r;
-  /* group_max ... */
-  unsigned * ttl;
-  size_t * count; /* absolute, count[group_used-1] == bullet_top */
-  float * hurts;
-  int * size;
-  Color * color;
-  float * dx, * dy, * dr;
+{ size_t group_used;
+  float x[BULLET_LIMIT], y[BULLET_LIMIT], r[BULLET_LIMIT];
+  unsigned ttl[GROUP_LIMIT];
+  size_t count[GROUP_LIMIT]; /* absolute, count[group_used-1] == bullet_top */
+  float hurts[GROUP_LIMIT];
+  int size[GROUP_LIMIT];
+  Color color[GROUP_LIMIT];
+  float dx[GROUP_LIMIT], dy[GROUP_LIMIT], dr[GROUP_LIMIT];
 };
 struct context
 { float delta, time;
@@ -72,10 +72,9 @@ struct context
   int kconfig[16], gconfig[16]; /* abstraction layer for input */
   int gamepad;                  /* gamepad integer */
   Vector2 area[1];              /* screen area */
-  int music_select;
   Sound music[3];
   Sound sound[6];
-  int phase;
+  int phase, thanks;
   struct player player[1];      /* player */
   struct effects effects[1];    /* effect levers */
   struct bullet bullet;         /* bullet abstraction */
