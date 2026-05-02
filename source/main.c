@@ -1,4 +1,7 @@
 #include <raylib.h>
+#ifdef PLATFORM_WEB
+# include <emscripten/emscripten.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,7 +20,7 @@
 /* table of abstracted keyboard input */
 /* We'll name this their functionality for sake of usability considering keyboard space is much larger */
 enum kconfig
-{ /* use duokey */ LEFT=0, RIGHT=2, UP=4, DOWN=6, SLOW=8, FIRE=10, BOMB=12
+{ /* use duokey */ LEFT=0, RIGHT=2, UP=4, DOWN=6, SLOW=8, FIRE=10, BOMB=12, RESTART=14
 };
 /* because gamepads are sparse and usually have contextual logic
  * we'll just set it as an abstraction layer that enables remapping.
@@ -75,7 +78,7 @@ struct context
   int phase;
   struct player player[1];      /* player */
   struct effects effects[1];    /* effect levers */
-  struct bullet bullet;    /* bullet abstraction */
+  struct bullet bullet;         /* bullet abstraction */
 };
 #include "render.c"
 #include "player.c"
@@ -90,10 +93,15 @@ public static inline int Main( int ac , char * av [ ] )
   struct context context[1] = {0};
   PreinitContext(av[0]);
   InitContext(context);
+#ifdef PLATFORM_WEB
+  g_context = context;
+  emscripten_set_main_loop(ContextWeb, 0, 1);
+#else
   ContextLoop(context);
+#endif
   DeinitContext(context);
   PostdeinitContext();
   return 0;
 }
 int main(int ac, char ** av)
-{ return Main(ac,av); }
+{ return Main(ac, av); }

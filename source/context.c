@@ -78,20 +78,31 @@ static inline void DeinitContext(struct context * context)
 static inline void PreinitContext(char * name)
 { srand(time(NULL));
   SetTraceLogLevel(LOG_ERROR);
-  SetConfigFlags(FLAG_MSAA_4X_HINT);
-  InitWindow(0, 0, name);
+  SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
+  InitWindow(1920, 1080, name);
+  ToggleFullscreen();
   InitAudioDevice();
   SetMasterVolume(0.1f);
 }
 static inline void ContextLoop(struct context * context)
-{ while (!WindowShouldClose())
-  { SetTargetFPS(IsWindowFocused() ? 60 : 10);
+{
+#ifndef PLATFORM_WEB
+  SetTargetFPS(IsWindowFocused() ? 60 : 10);
+  while (!WindowShouldClose())
+#endif
+  {
     UpdateContext(context);
     { BeginDrawing();
       RenderContext(context);
     } EndDrawing();
   }
 }
+#ifdef PLATFORM_WEB
+struct context * g_context;
+static inline void ContextWeb(void)
+{ ContextLoop(g_context);
+}
+#endif
 static inline void PostdeinitContext(void)
 { CloseAudioDevice();
   CloseWindow();

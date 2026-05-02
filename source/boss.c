@@ -4,26 +4,10 @@ static inline void Group(struct context * context, size_t count, Vector3 start, 
 static inline void ShootAt(struct context * context, Vector2 position, size_t group, float speed);
 static inline void RestartBullet(struct context * context);
 static inline void UpdateBoss(struct context * context)
-{ int require = 0; /* GAMEPLAY: */
+{ int require = -1; /* GAMEPLAY: */
   struct bullet * b = &context->bullet; (void) b;
-  /* flan */
-  /* song 1 flan
-     time 693.284790
-     time 848.392090
-     time 1603.466187
-     time 1678.325806
-     time 2830.225098
-     time 2926.721680
-     time 4155.109375
-     time 5356.948242
-     time 5394.999023
-     time 6668.221680
-     time 7269.838867
-     time 7286.807617
-     time 9773.407227
-     time 9915.417969
-   */
-  if (context->time > 50 && context->phase == require)
+  /* song 1 flan */
+  if (context->time > 50 && context->phase == ++require)
   { ++context->phase;
     context->effects->target_background_color = BLUE;
     Group(context, 250, (Vector3){GAME_AREA/2, GAME_AREA/4, 1}, (Vector3){5, 20, 0.1}, (Vector3){0,   1, 0}, 1600);
@@ -78,7 +62,7 @@ static inline void UpdateBoss(struct context * context)
   { ShootAt(context, context->player->position, b->group_used-1, 6);
     ShootAt(context, context->player->position, b->group_used-2, 6);
   }
-  if (context->time >= 12500 && context->phase == require)
+  if (context->time >= 12350 && context->phase == require)
   { ++context->phase;
   }
   /* END GAMEPLAY. */

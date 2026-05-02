@@ -80,12 +80,12 @@ static inline void UpdatePlayerInput(struct context * context)
     context->player->bomb--;
     PlaySound(context->sound[WHISTLE_SOUND]);
   }
-  if (IsKeyPressed(KEY_R))
+  if (IsKeyPressed(KEY_T))
   { printf("time %f\n", context->time);
   }
   context->player->position.x += context->delta * context->player->speed * context->player->move.x;
   context->player->position.y += context->delta * context->player->speed * context->player->move.y;
-  if (IsKeyPressed(KEY_F1)
+  if (duokey(IsKeyPressed, RESTART)
   ||  IsGamepadButtonPressed(context->gamepad, context->gconfig[START])) Die(context);
   if (context->player->position.x > GAME_AREA) context->player->position.x -= GAME_AREA;
   if (context->player->position.x < 0)         context->player->position.x += GAME_AREA;
@@ -150,6 +150,7 @@ static inline void InitPlayer(struct context * context)
     KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT,
     KEY_Z, KEY_SPACE,
     KEY_B, KEY_F,
+    KEY_R, KEY_F1,
   };
   int gconfig[] =
   { GAMEPAD_BUTTON_MIDDLE_RIGHT,
